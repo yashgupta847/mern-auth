@@ -38,7 +38,7 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// ✅ Verify OTP (Signup)// ✅ BACKEND: verify-otp route with debug logs
+// ✅ Verify OTP (Signup)
 router.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
 
@@ -79,13 +79,12 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-
-
 // ✅ Login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log("🔐 Login Attempt:", email, password);
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found" });
 
@@ -107,11 +106,16 @@ router.post("/login", async (req, res) => {
 // ✅ Protected Route
 router.get("/protected", verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user.userId); // Ensure user is found using the ID
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    console.log("Decoded User from Token:", req.user); // Debugging the token
     res.status(200).json({
       message: "Protected route accessed 🚀",
       userId: user._id,
-      name: user.name,
+      name: user.name, // Ensure name is included in the response
     });
   } catch (err) {
     console.error("Protected route error:", err);
